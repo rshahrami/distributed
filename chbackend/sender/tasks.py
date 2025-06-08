@@ -54,48 +54,62 @@ def send_scheduled_post(post_id):
             chat_id = channel.channel_id  # مثلاً "@my_channel" یا "-1001234567890"
             print(chat_id)
             print("*************")
+            titr = post.titr
             caption = post.caption
+            author = post.author
+            hashtags = post.hashtags
+
+            message = ""
+            if titr:
+                message += f"{titr}\n\n"
+            if caption:
+                message += f"{caption}\n\n"
+            if hashtags:
+                message += f"{hashtags}\n\n"
+            if author:
+                message += f"<<{author}>>"
+
             platform = channel.platform
             apiToken = tokens.get(platform)
 
             if platform == 'telegram':
                 if insert_media == 'picture':
                     apiURL = f'https://api.telegram.org/bot{apiToken}/sendDocument'
-                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': caption},
+                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': message},
                                              files={'document': open(image_path, 'rb')})
                 elif insert_media == 'video':
                     apiURL = f'https://api.telegram.org/bot{apiToken}/sendDocument'
-                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': caption},
+                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': message},
                                              files={'document': open(image_path, 'rb')})
                 else:
                     apiURL = f'https://api.telegram.org/bot{apiToken}/sendMessage'
-                    response = requests.post(apiURL, json={'chat_id': chat_id, 'text': caption})
+                    response = requests.post(apiURL, json={'chat_id': chat_id, 'text': message})
 
             elif platform == 'bale':
                 if insert_media == 'picture':
                     apiURL = f'https://tapi.bale.ai/bot{apiToken}/SendPhoto'
-                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': caption},
+                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': message},
                                              files={'photo': open(image_path, 'rb')})
                 elif insert_media == 'video':
                     apiURL = f'https://tapi.bale.ai/bot{apiToken}/SendVideo'
-                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': caption},
+                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': message},
                                              files={'video': open(image_path, 'rb')})
                 else:
                     apiURL = f'https://tapi.bale.ai/bot{apiToken}/sendMessage'
-                    response = requests.post(apiURL, json={'chat_id': chat_id, 'text': caption})
+                    response = requests.post(apiURL, json={'chat_id': chat_id, 'text': message})
 
             elif platform == 'eitaa':
                 if insert_media == 'picture':
                     apiURL = f'https://eitaayar.ir/api/{apiToken}/sendFile'
-                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': caption},
+                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': message},
                                              files={'file': open(image_path, 'rb')})
                 elif insert_media == 'video':
                     apiURL = f'https://eitaayar.ir/api/{apiToken}/sendFile'
-                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': caption},
+                    response = requests.post(apiURL, data={'chat_id': chat_id, 'caption': message},
                                              files={'file': open(image_path, 'rb')})
                 else:
                     apiURL = f'https://eitaayar.ir/api/{apiToken}/sendMessage'
-                    response = requests.post(apiURL, json={'chat_id': chat_id, 'text': caption})
+                    response = requests.post(apiURL, json={'chat_id': chat_id, 'text': message})
 
             else:
                 raise Exception(f"پلتفرم {platform} پشتیبانی نمی‌شود")

@@ -53,13 +53,13 @@ class ChannelAdmin(admin.ModelAdmin):
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     form = PostAdminForm
-    list_display = ['caption', 'scheduled_time', 'sent']
+    list_display = ['titr', 'caption', 'hashtags', 'author', 'scheduled_time', 'sent']
     filter_horizontal = ['channels']
     exclude = ['created_by']
 
     fieldsets = (
         (None, {
-            'fields': ('caption', 'media', 'scheduled_time')
+            'fields': ('titr', 'caption', 'hashtags', 'author', 'media', 'scheduled_time')
         }),
         ('انتخاب کانال‌ها یا دسته‌بندی', {
             'fields': ('channels', 'category'),

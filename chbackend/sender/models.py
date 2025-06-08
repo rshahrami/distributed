@@ -78,7 +78,27 @@ def validate_media(value):
 
 
 class Post(models.Model):
+    titr = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="عنوان"
+    )
     caption = models.TextField()
+    author = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="نویسنده"
+    )
+
+    hashtags = models.TextField(
+        blank=True,
+        null=True,
+        help_text="هر هشتگ در یک خط و با فاصله جدا شوند.",
+        verbose_name="هشتگ‌ها"
+    )
+
     # image = models.ImageField(upload_to='posts/',verbose_name="عکس", blank=True, null=True)
     # video = models.FileField(upload_to='posts/videos/', verbose_name="ویدئو", blank=True, null=True)
     media = models.FileField(

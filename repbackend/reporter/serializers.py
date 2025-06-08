@@ -1,5 +1,17 @@
 from rest_framework import serializers
 from .models import *
+from .utils import to_jalali
+
+
+class JalaliDateField(serializers.DateField):
+    def to_representation(self, value):
+        return to_jalali(value)
+
+
+class JalaliDateTimeField(serializers.DateTimeField):
+    def to_representation(self, value):
+        return to_jalali(value)
+
 
 class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,6 +72,7 @@ class ChannelDetailSerializer(serializers.ModelSerializer):
     latest_member = serializers.SerializerMethodField()
     total_posts = serializers.SerializerMethodField()
     total_views = serializers.SerializerMethodField()
+    # created_at = JalaliDateField()
 
     class Meta:
         model = Channel

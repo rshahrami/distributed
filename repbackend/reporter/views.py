@@ -6,7 +6,7 @@ from django.db.models import Q, Sum, Count, OuterRef, Subquery
 from datetime import datetime
 from .models import *
 from .serializers import *
-from .permissions import IsAdminOrOwnProvince
+#from .permissions import IsAdminOrOwnProvince
 # from rest_framework.filters import SearchFilter
 
 
@@ -519,7 +519,9 @@ class ChannelListViewSet(viewsets.ViewSet):
                     {"error": "فرمت تاریخ نامعتبر است. استفاده از YYYY-MM-DD یا YYYY/MM/DD الزامی است."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            posts = channels.filter(collected_at__range=[start_date_parsed, end_date_parsed])
+            posts = Post.objects.filter(channel__in=channels, collected_at__range=[start_date_parsed, end_date_parsed])
+            channels = Channel.objects.filter(posts__in=posts).distinct()
+            # posts = channels.filter(collected_at__range=[start_date_parsed, end_date_parsed])
 
         serializer = ChannelDetailSerializer(channels.distinct(), many=True)
         return Response(serializer.data)

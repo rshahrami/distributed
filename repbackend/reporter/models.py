@@ -127,3 +127,19 @@ class Author(models.Model):
     @property
     def full_name(self):
         return f"{self.name} {self.family}"
+
+
+# class UserChannelAccess(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
+#
+#     class Meta:
+#         unique_together = ('user', 'channel')
+#
+#
+# class UserAuthorAccess(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     author = models.ForeignKey(Author, on_delete=models.CASCADE)
+#
+#     class Meta:
+#         unique_together = ('user', 'author')
