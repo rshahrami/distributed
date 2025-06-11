@@ -32,6 +32,9 @@ class PostAdminForm(forms.ModelForm):
         if channels and category:
             raise ValidationError("فقط می‌توانید یا کانال‌ها را انتخاب کنید یا یک دسته‌بندی، نه هر دو را با هم.")
 
+        if category and not Channel.objects.filter(category=category, users=self.request.user).exists():
+            raise ValidationError("هیچ کانالی در این دسته‌بندی وجود ندارد که به شما دسترسی داشته باشد.")
+
         return cleaned_data
 
 
@@ -61,30 +64,38 @@ class PostAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('titr', 'caption', 'hashtags', 'author', 'media', 'scheduled_time')
         }),
-        ('انتخاب کانال‌ها یا دسته‌بندی', {
-            'fields': ('channels', 'category'),
-            'description': 'فقط یکی از گزینه‌های زیر را انتخاب کنید:'
+        ('انتخاب دسته‌بندی', {
+            'fields': ('category',),
+            'description': 'با انتخاب یک دسته‌بندی، پست به تمام کانال‌های مربوط به آن دسته‌بندی و دسترسی شما ارسال می‌شود.'
+        }),
+        ('کانال‌ها (فقط اگر دسته‌بندی انتخاب نشود)', {
+            'fields': ('channels',)
         }),
     )
 
     def save_model(self, request, obj, form, change):
-        # تنظیم created_by اگر پست جدید است
+        # تنظیم created_by
         if not obj.pk:
             obj.created_by = request.user
 
-        # ابتدا پست را ذخیره کنید (برای ایجاد ID در صورت جدید بودن)
         super().save_model(request, obj, form, change)
 
-        # اگر دسته‌بندی انتخاب شده باشد، کانال‌های آن را اضافه کنید
+        # اگر دسته‌بندی انتخاب شده باشد، کانال‌های مجاز را تنظیم کن
         if obj.category:
-            channels_in_category = Channel.objects.filter(category=obj.category)
-            obj.channels.set(channels_in_category)  # جایگزین کردن تمام کانال‌های قبلی
+            channels_in_category = Channel.objects.filter(
+                category=obj.category,
+                users=request.user  # فقط کانال‌هایی که کاربر به آن‌ها دسترسی دارد
+            )
+            obj.channels.set(channels_in_category)
 
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
         obj = form.instance
         if obj.category:
-            channels_in_category = Channel.objects.filter(category=obj.category)
+            channels_in_category = Channel.objects.filter(
+                category=obj.category,
+                users=request.user
+            )
             obj.channels.set(channels_in_category)
 
     def get_queryset(self, request):
@@ -97,6 +108,12 @@ class PostAdmin(admin.ModelAdmin):
         if db_field.name == "channels":
             # فقط کانال‌هایی که کاربر به آن‌ها دسترسی دارد
             kwargs["queryset"] = Channel.objects.filter(users=request.user)
-            # غیراجباری کردن (اجازه می‌دهد کاربر کانالی انتخاب نکند)
+            # اختیاری کردن فیلد (چون یا کانال‌ها یا دسته‌بندی انتخاب میشه)
             kwargs["required"] = False
         return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        # ارسال request به فرم
+        form.request = request
+        return form
