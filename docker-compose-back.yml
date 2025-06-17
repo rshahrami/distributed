@@ -22,6 +22,7 @@ services:
       - postgres
       - redis
 
+
   postgres:
     hostname: postgres
     image: postgres:15
@@ -43,17 +44,24 @@ services:
     hostname: redis
     image: redis:8.0.2
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    command: ["redis-server"]
     ports:
       - 6379:6379
     networks:
       - back
-    volumes:
-      - postgres_data:/var/lib/postgresql/
-      - /storage/postgres/:/etc/postgresql/15/main/
-    environment:
-      - POSTGRES_PASSWORD=Z9Ar$beQ31ql
-      - POSTGRES_USER=db_user
-      - POSTGRES_DB=distributed
+    
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/
+    #   - /storage/postgres/:/etc/postgresql/15/main/
+    # environment:
+    #   - POSTGRES_PASSWORD=Z9Ar$beQ31ql
+    #   - POSTGRES_USER=db_user
+    #   - POSTGRES_DB=distributed
 
 networks:
   back:
