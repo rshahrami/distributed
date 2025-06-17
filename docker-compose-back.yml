@@ -18,7 +18,9 @@ services:
     volumes:
       - /storage/static/:/backend/static/
       - /storage/posts/:/backend/posts/
-
+    depends_on:
+      - postgres
+      - redis
 
   postgres:
     hostname: postgres
@@ -30,12 +32,28 @@ services:
       - back
     volumes:
       - postgres_data:/var/lib/postgresql/
-      - /storage/postgres/:/etc/postgresql/16/main/
+      - /storage/postgres/:/etc/postgresql/15/main/
     environment:
       - POSTGRES_PASSWORD=Z9Ar$beQ31ql
       - POSTGRES_USER=db_user
       - POSTGRES_DB=distributed
 
+
+  redis:
+    hostname: redis
+    image: redis:8.0.2
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - back
+    volumes:
+      - postgres_data:/var/lib/postgresql/
+      - /storage/postgres/:/etc/postgresql/15/main/
+    environment:
+      - POSTGRES_PASSWORD=Z9Ar$beQ31ql
+      - POSTGRES_USER=db_user
+      - POSTGRES_DB=distributed
 
 networks:
   back:

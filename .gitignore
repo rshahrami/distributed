@@ -48,3 +48,5 @@ npm-debug.log*
 # Ignore فایل‌های سیستم عامل
 .DS_Store
 Thumbs.db
+
+*.tar
