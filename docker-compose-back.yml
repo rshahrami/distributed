@@ -1,0 +1,49 @@
+#compose file for create stack in use swarm
+version: '3.8'
+services:
+  distributed:
+    hostname: distributed
+    image: distributed:v1.0.0
+    # build:
+    #   dockerfile: Dockerfile.django
+    restart: always
+    # networks:
+    #   - test
+    ports:
+      - 8081:8081
+    # expose:
+    #   - 8081
+    networks:
+      - back
+    volumes:
+      - /storage/static/:/backend/static/
+      - /storage/posts/:/backend/posts/
+
+
+  postgres:
+    hostname: postgres
+    image: postgres:15
+    restart: always
+    ports:
+      - 9224:5432
+    networks:
+      - back
+    volumes:
+      - postgres_data:/var/lib/postgresql/
+      - /storage/postgres/:/etc/postgresql/16/main/
+    environment:
+      - POSTGRES_PASSWORD=Z9Ar$beQ31ql
+      - POSTGRES_USER=db_user
+      - POSTGRES_DB=distributed
+
+
+networks:
+  back:
+
+volumes:
+  postgres_data:
+    # driver: bridge
+    # ipam:
+    #  config:
+    #    - subnet: 172.18.0.0/24
+    #      gateway: 172.18.0.
